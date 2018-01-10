@@ -1,0 +1,23 @@
+pragma solidity ^0.4
+
+contract Escrow {
+
+  uint numVotes;
+  uint yesVotes;
+  uint noVotes;
+  
+  function Escrow() {
+     
+  }
+
+  function vote(bool votedYes) public {
+    if (votedYes) yesVotes++;
+    else noVotes++;
+    numVotes++;
+   }
+
+  function refund() public {
+    
+  }
+  
+}
