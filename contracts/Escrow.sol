@@ -6,12 +6,17 @@ pragma solidity ^0.4
  */
 
 contract Escrow {
- 
   uint public numVotes; //this can be a functions.. yesVotes+noVotes
   uint public yesVotes;
   uint public noVotes;
   uint public roundNum;
   uint public numRounds;
+
+  // threshold approval
+  uint public threshNum;
+  uint public threshDen;
+  uint public minVotes;
+    
   mapping (uint => bool) public roundOpen;
   
   function Escrow(uint _numRounds) {
@@ -23,16 +28,24 @@ contract Escrow {
     else noVotes++;
     numVotes++;
    }
-
-  function setFund2beReleased
   
   // open voting round
   function openVote(uint round) public {
   }
 
   // close voting round
-  function closeVote(uint round) public {
+  function closeVote() public {
+    if (thresholdReached()) releaseFunds();
+    else failRound(roundNum);
+  }
 
+  function thresholdReached() public returns (bool) {
+    if (numVotes > minVotes && yesVotes*threshDen > threshNum) return true;
+    else return false;
+  }
+
+  function failRound() public {
+    
   }
   
   // releases funds to company
@@ -46,4 +59,4 @@ contract Escrow {
     
   }
   
-
+}
