@@ -65,6 +65,7 @@ contract Escrow {
 
   function singleVote(bool votedYes) public {
     require(hasVoted[msg.sender] == false);  // do token holders vote? should it be weighted by token count?
+    require(now >= window[roundNum].start && now <= window[roundNum].end); // make sure in voting window
     if (votedYes) yesVotes++;
     else noVotes++;
     numVotes++;
