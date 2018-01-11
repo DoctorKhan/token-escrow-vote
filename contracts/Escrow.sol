@@ -6,20 +6,32 @@ pragma solidity ^0.4
  */
 
 contract Escrow {
- 
   uint public numVotes; //this can be a functions.. yesVotes+noVotes
   uint public yesVotes;
   uint public noVotes;
   uint public roundNum;
   uint public numRounds;
+
+  // threshold approval
+  uint public threshNum;
+  uint public threshDen;
+  uint public minVotes;
+    
   mapping (uint => bool) public roundOpen;
   
   function Escrow(uint _numRounds) {
     numRounds = _numRounds;
   }
 
-  function setFund2beReleased () {}
   
+  function singleVote(bool votedYes) public {
+    require(hasVoted[msg.sender] == false);  // do token holders vote? should it be weighted by token count?
+    require(now >= window[roundNum].start && now <= window[roundNum].end); // make sure in voting window
+    if (votedYes) yesVotes++;
+    else noVotes++;
+    numVotes++;
+   }
+
   // ======
   // ADMIN:
   // ======
@@ -36,8 +48,18 @@ contract Escrow {
   }
 
   // close voting round
-  function closeVote(uint round) public {
+  function closeVote() public {
+    if (thresholdReached()) releaseFunds();
+    else failRound(roundNum);
+  }
 
+  function thresholdReached() public returns (bool) {
+    if (numVotes > minVotes && yesVotes*threshDen > threshNum) return true;
+    else return false;
+  }
+
+  function failRound() public {
+    
   }
 
   // releases funds to company
@@ -84,7 +106,7 @@ contract Escrow {
     _;
   }
 
-
+  // Use these times for testing
   function getBlockTime()   public constant returns (uint) { return block.timestamp; }
   function getBlockNumber() public constant returns (uint) { return block.number;    }
 }
