@@ -87,6 +87,14 @@ contract Escrow {
     msg.sender.send(refundAmount);
   }
 
+  function singleVote(bool votedYes) public {
+    require(hasVoted[msg.sender] == false);  // do token holders vote? should it be weighted by token count?
+    require(getBlockNumber() >= window[roundNum].start && getBlockNumber() <= window[roundNum].end); // make sure in voting window
+    if (votedYes) yesVotes++;
+    else noVotes++;
+    numVotes++;
+   }
+
   // =====
   // MISC:
   // =====
@@ -100,4 +108,7 @@ contract Escrow {
     _;
   }
 
+  // Use these times for testing
+  function getBlockTime()   public constant returns (uint) { return block.timestamp; }
+  function getBlockNumber() public constant returns (uint) { return block.number;    }
 }
