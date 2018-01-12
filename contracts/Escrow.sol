@@ -11,6 +11,7 @@ contract Escrow {
   uint public noVotes;
   uint public roundNum;
   uint public numRounds;
+  address public company;
 
   // threshold approval
   uint public threshNum;
@@ -58,8 +59,9 @@ contract Escrow {
     else return false;
   }
 
+  // keep track of failures
   function failRound() public {
-    
+    failures[roundNum]++;
   }
 
   // releases funds to company
