@@ -9,9 +9,8 @@ var contract = require('truffle-contract');
 // Import our contract artifacts and turn them into usable abstractions.
 var events = require('./../events.js');  // This is our code
 
-import simpleStorage_artifacts from './../../../build/contracts/SimpleStorage.json';
-var SimpleStorage = contract(simpleStorage_artifacts);
-// var SimpleStorage = contract('contracts/SimpleStorage.sol');
+import escrow_artifacts from './../../../build/contracts/Escrow.json';
+var Escrow = contract(escrow_artifacts);
 
 export default class Layout extends React.Component {
 
@@ -45,7 +44,7 @@ export default class Layout extends React.Component {
     }
 
     // Bootstrap the Contract abstractions for Use.
-    await SimpleStorage.setProvider(web3.currentProvider);
+fdsfadsfdsfdsafs    await Escrow.new(web3.currentProvider);
     await SimpleStorage.deployed().then((instance) => { this.simpleStorage = instance; }).catch(e => {this.updateStatus('Error! See console'); console.log(e);});
 
     // Load accounts
