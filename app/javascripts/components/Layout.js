@@ -9,6 +9,8 @@ var contract = require('truffle-contract');
 // Import our contract artifacts and turn them into usable abstractions.
 var events = require('./../events.js');  // This is our code
 
+import escrowFactory_artifacts from './../../../build/contracts/EscrowFactory.json';
+var EscrowFactory = contract(escrowFactory_artifacts);
 import escrow_artifacts from './../../../build/contracts/Escrow.json';
 var Escrow = contract(escrow_artifacts);
 
@@ -22,12 +24,11 @@ export default class Layout extends React.Component {
     super();
 
     this.state = { account1: '0x0'
-                 , storedData: 'n/a'
                  , txResult: 'n/a'
                  , status: 'Starting..'
                  };
 
-    this.simpleStorage = undefined;
+    this.escrowFactory = undefined;
     this.updateStatus = this.updateStatus.bind(this);
   }
 
@@ -44,8 +45,9 @@ export default class Layout extends React.Component {
     }
 
     // Bootstrap the Contract abstractions for Use.
-fdsfadsfdsfdsafs    await Escrow.new(web3.currentProvider);
-    await SimpleStorage.deployed().then((instance) => { this.simpleStorage = instance; }).catch(e => {this.updateStatus('Error! See console'); console.log(e);});
+    await EscrowFactory.setProvider(web3.currentProvider);
+    await Escrow.setProvider(web3.currentProvider);
+    this.escrowFactory = await EscrowFactory.deployed();
 
     // Load accounts
     await web3.eth.getAccounts((err, accs) => {
@@ -69,13 +71,7 @@ fdsfadsfdsfdsafs    await Escrow.new(web3.currentProvider);
     });    
   }
 
-  updateStoredData = (v) => {
-    this.setState({
-      storedData: v
-    });    
-  }
-
-
+// make this async?
   showTxResult = (tx) => {
     var costUsd, ethUsd, s, gasUsed, gasPrice, url, this___;
     this___ = this;
@@ -104,35 +100,24 @@ fdsfadsfdsfdsafs    await Escrow.new(web3.currentProvider);
   }
 
   
-  //================
-  // User functions:
-  //================
-
-  getStoredData = (e) => {
+  //==============
+  // Company code:
+  //==============
+  createEscrow = (e) => {
     e.preventDefault();
+    this.updateStatus('Creating escrow...');
 
-    this.updateStatus('Getting stored data...');
-    this.simpleStorage.get().then(val => {
-      this.updateStoredData(val.toString(10));
-      this.updateStatus('Completed retrieved data.');
-    }).catch((e) => {
-      this.updateStatus('Error! See console for details!');
-      console.log(e);      
-    });
-  }
+    const numRounds = new BigNumber(3);
 
-
-  setStoredData = (e) => {
-    e.preventDefault();
-
-    this.updateStatus('Setting stored data...');
-    const val = Web3.prototype.toBigNumber(this.storedDataInput.value);
-    this.simpleStorage.set(val, {from: this.state.account1}).then(tx => {
-      this.updateStatus('Completed setting stored data. Click to update.');
+    this.escrowFactory.createEscrow(numRounds, '0x123', '0x456').then(async tx => {
+      this.updateStatus('Made new escrow, see console for details');
+      const escrowInfo = events.EscrowCreation(result);
+      const s = 'escrow: ' + escrowInfo[0] + ' controller: ' + escrowInfo[1] + ' token: ' + escrowInfo[2];
+      console.log(s);
       this.showTxResult(tx);
-    }).catch((e) => {
+    }).catch(e => {
       this.updateStatus('Error! See console for details!');
-      console.log(e);      
+      console.log(e);
     });
   }
 
@@ -152,23 +137,12 @@ fdsfadsfdsfdsafs    await Escrow.new(web3.currentProvider);
     <tr>Account 1: {this.state.account1}</tr>
     <tr>Status: {this.state.status}</tr>
     <tr>Transaction Result: {this.state.txResult}</tr>
-    <tr>Store Value: {this.state.storedData}</tr>
   </table>
   
   <br/><br/>
-  <button className='GetStoredData' 
+  <button className='CreateEscrow' 
           class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"  
-          onClick = {this.getStoredData} >Get Stored Data</button>
-  
-  
-  <br/><br/>
-  <label>Value To Store</label><br/>
-  <input id='storedData' className='StoredData' type='text' ref={(i) => { if(i) { this.storedDataInput = i; }}} />
-    <br/>
-    <button className='SetStoredData' 
-            class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"  
-            onClick = {this.setStoredData} >Set Stored Data</button>
-
+          onClick = {this.createEscrow} >Create Escrow</button>
 </div>
     );
   }
