@@ -18,6 +18,8 @@ contract Escrow {
   uint public minVotes;
     
   mapping (uint => bool) public roundOpen;
+
+  event VotingResult(bool indexed releasedFunds);
   
   function Escrow(uint _numRounds) {
     numRounds = _numRounds;
@@ -53,9 +55,9 @@ contract Escrow {
     else failRound(roundNum);
   }
 
-  function thresholdReached() public returns (bool) {
-    if (numVotes > minVotes && yesVotes*threshDen > threshNum) return true;
-    else return false;
+  function thresholdReached() public constant returns (bool) {
+    return numVotes > minVotes
+        && (yesVotes * threshDen) > threshNum;
   }
 
   function failRound() public {
@@ -86,7 +88,10 @@ contract Escrow {
   }
 
   function singleVote(bool votedYes) public {
-    require(hasVoted[msg.sender] == false);  // do token holders vote? should it be weighted by token count?
+    // do token holders vote? should it be weighted by token count?
+    // need to reset this for every round, or have hasVoted[round][msg.sender]
+    // voting based on balances at certain point in BC? e.g. minime token? consider people not using it
+    require(hasVoted[msg.sender] == false);  
     require(getBlockNumber() >= window[roundNum].start && getBlockNumber() <= window[roundNum].end); // make sure in voting window
     if (votedYes) yesVotes++;
     else noVotes++;
