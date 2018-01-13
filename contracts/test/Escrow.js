@@ -7,9 +7,11 @@ var chai = require('chai')
 const assert = require("chai").use(require("chai-as-promised")).assert;
 const BigNumber = web3.BigNumber;
 
+// 
+// Add feature sovereign
 //************************************************
 // Tests
-contract('GOODController', function (accounts) {
+contract('Escrow', function (accounts) {
 
   const account1 = accounts[0];
   const account2 = accounts[1];
