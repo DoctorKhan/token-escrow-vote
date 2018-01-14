@@ -1,14 +1,13 @@
 // var events = require('./../app/javascripts/events');
 // var util = require('./../app/javascripts/util');
 
-var Escrow = artifacts.require('MockEscrow.sol');
+var EscrowFactory = artifacts.require('EscrowFactory.sol');
+var Escrow = artifacts.require('Escrow.sol');
 
 var chai = require('chai')
 const assert = require("chai").use(require("chai-as-promised")).assert;
 const BigNumber = web3.BigNumber;
 
-// 
-// Add feature sovereign
 //************************************************
 // Tests
 contract('Escrow', function (accounts) {
@@ -17,16 +16,23 @@ contract('Escrow', function (accounts) {
   const account2 = accounts[1];
   const account3 = accounts[2];
   const walletAddress = accounts[3];
+  const oracleCBAddress = accounts[4];
 
   var escrow;
+  var escrowFactory;
 
-  describe('test 1', async () => {
+  describe('works with minime token', async () => {
     beforeEach(async () => {
-      escrow = await Escrow.new({from: account1});
+      escrowfactory = await EscrowFactory.new({from: account1});
+      
+      var numRounds  = new BigNumber(3);
+      var controller = account1;
+      var token = ;
+      escrow = await escrowFactory.createEscrow(numRounds, controller, token, {from: account1});
     });
 
-    it('refunds', async () => {
-      await escrow.refund();
+    it('fails on fallback', async () => {
+      
     });
   });
 });
