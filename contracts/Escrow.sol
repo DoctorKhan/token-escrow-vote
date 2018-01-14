@@ -17,7 +17,9 @@ contract Escrow {
   uint public threshNum;
   uint public threshDen;
   uint public minVotes;
-    
+  address public tokenContract;
+
+  mapping (address => uint) public votes;
   mapping (uint => bool) public roundOpen;
 
   event VotingResult(bool indexed releasedFunds);
@@ -26,6 +28,11 @@ contract Escrow {
     numRounds = _numRounds;
   }
 
+  function allocVotes() public {
+    uint tokenNum = tokenContract.getBalance(msg.sender);
+    votes[msg.sender] = sqrt(tokenNum);
+                             
+  }
   
   function singleVote(bool votedYes) public {
     require(hasVoted[msg.sender] == false);  // do token holders vote? should it be weighted by token count?
