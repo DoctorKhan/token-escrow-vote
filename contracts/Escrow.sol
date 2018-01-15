@@ -1,14 +1,15 @@
-pragma solidity ^0.4
+pragma solidity ^0.4.15;
 /* 1. should release funds to company when yes vote complete
    2. should retain funds when no vote
    3. should refund if 
       a. tokens passed and b. no vote and c. company agrees.
  */
+import "../../MiniPre/contracts/ERC20.sol";
 
 contract Escrow {
   uint public numVotes; //this can be a functions.. yesVotes+noVotes
-  uint public yesVotes;
-  uint public noVotes;
+  //  uint public yesVotes;
+  //  uint public noVotes;
   uint public roundNum;
   uint public numRounds;
   address public company;
@@ -17,36 +18,69 @@ contract Escrow {
   uint public threshNum;
   uint public threshDen;
   uint public minVotes;
-  address public tokenContract;
-
-  mapping (address => uint) public votes;
-  mapping (uint => bool) public roundOpen;
+  ERC20 public tokenContract;
+  
+  // allow revoting?
+  mapping (uint => mapping (address => bool)) public hasVoted; // round -> user -> hasVoted
+  mapping (uint => uint) public funds2beReleased;              // round -> amount-sent-to-company
+  mapping (uint => bool) public roundOpen;                     // round -> closed/open
+  mapping (uint => uint) public endTime;                       // round -> vote-end-time
+  mapping (uint => uint) public startTime;                     // round -> vote-start-time
+  mapping (uint => uint) public yesVotes;                      // round -> yes-votes
+  mapping (uint => uint) public noVotes;                       // round -> no-votes  
+  mapping (address => uint) public voteWeight;                 // user  -> vote-weight
 
   event VotingResult(bool indexed releasedFunds);
-  
-  function Escrow(uint _numRounds) {
+
+  function Escrow(uint _numRounds, address _controller, address _token) {
+    tokenContract = ERC20(_token);
     numRounds = _numRounds;
   }
 
+  // should we include self destruct after usefulness of escrow has expired?
+
+  // fix this
+  function sqrt(uint a) returns (uint) { return 1; }
+
+  // consider a minimum voting power fn = sqrt(userToken) / SIGMA_u sqrt(u)
+  // could be really useful. would have to be calculate offchain
+  function minVotingPower(address user) public constant returns (string) {
+    // return alloc[user] / maxVoteCount;
+    return "1.421%";
+  }
+
+  // consider privledges
+  function startVoteRound() public {
+    require(now >= startTime[roundNum + 1] && now <= endTime[roundNum + 1]); // make sure in voting window
+    roundNum = roundNum + 1;
+  }
+
   function allocVotes() public {
-    uint tokenNum = tokenContract.getBalance(msg.sender);
-    votes[msg.sender] = sqrt(tokenNum);
-                             
+    uint tokenNum = tokenContract.balanceOf(msg.sender);
+    voteWeight[msg.sender] = sqrt(tokenNum); 
   }
   
+  // voting based on balances at certain point in BC? e.g. minime token? consider people not using it
   function singleVote(bool votedYes) public {
-    require(hasVoted[msg.sender] == false);  // do token holders vote? should it be weighted by token count?
-    require(now >= window[roundNum].start && now <= window[roundNum].end); // make sure in voting window
-    if (votedYes) yesVotes++;
-    else noVotes++;
+    // Error check
+    require(hasVoted[roundNum][msg.sender] == false);
+    require(now >= startTime[roundNum] && now <= endTime[roundNum]); // make sure in voting window
+
+    // State changes
+    if (votedYes) {
+      yesVotes[roundNum] = yesVotes[roundNum] + voteWeight[msg.sender];
+    }
+    else {
+      noVotes[roundNum] = noVotes[roundNum] + voteWeight[msg.sender];
+    }
     numVotes++;
+    hasVoted[roundNum][msg.sender] = true;
    }
 
   // ======
   // ADMIN:
   // ======
-  
-  
+
 
   // ========
   // COMPANY:
@@ -59,24 +93,25 @@ contract Escrow {
 
   // close voting round
   function closeVote() public {
-    if (thresholdReached()) releaseFunds();
-    else failRound(roundNum);
+    //    if (thresholdReached()) releaseFunds();
+    //    else failRound(roundNum);
   }
 
+  // big thing here, make sure this fn is safe if roundNum changes, or don't let roundNum change
   function thresholdReached() public constant returns (bool) {
+    // this should be related to noVotes too. Or, what if voting is only 10% turnout? this is valid, but might be rejected b/c didn't reach threshold
     return numVotes > minVotes
-        && (yesVotes * threshDen) > threshNum;
+        && (yesVotes[roundNum] * threshDen) > threshNum;
   }
 
   // keep track of failures
   function failRound() public {
-    failures[roundNum]++;
+    // failures[roundNum]++;
   }
 
   // releases funds to company
   function releaseFunds() internal {
-    // company.send(funds2be..)
-    require(msg.send(company, funds2beReleased[roundNum]));
+    require(company.send(funds2beReleased[roundNum]));
     // require so it doesn't eat gas
   }
 
@@ -87,25 +122,15 @@ contract Escrow {
 
   // Require approval of entire balanceOf?
   function refund() public {
-    require(inRefundState);
+    // add this    require(inRefundState);
 
     // Get tokens, then refund remaining ether
-    uint tokenCount = token.balanceOf(msg.sender);
-    uint refundAmount = tokenCount * currentExchangeRate;  // Num and denom style is probably better. Probably need be careful in what gets divided and multiplied first.. e.g. (1/4)*8 vs (1*8)/4
-    require(token.transferFrom(msg.sender, this, tokenCount));  // make sure params are right
+    uint tokenCount = tokenContract.balanceOf(msg.sender);
+    uint refundAmount = 1;
+    // uint refundAmount = tokenCount * currentExchangeRate;  // Num and denom style is probably better. Probably need be careful in what gets divided and multiplied first.. e.g. (1/4)*8 vs (1*8)/4
+    require(tokenContract.transferFrom(msg.sender, this, tokenCount));  // make sure params are right
     msg.sender.send(refundAmount);
   }
-
-  function singleVote(bool votedYes) public {
-    // do token holders vote? should it be weighted by token count?
-    // need to reset this for every round, or have hasVoted[round][msg.sender]
-    // voting based on balances at certain point in BC? e.g. minime token? consider people not using it
-    require(hasVoted[msg.sender] == false);  
-    require(getBlockNumber() >= window[roundNum].start && getBlockNumber() <= window[roundNum].end); // make sure in voting window
-    if (votedYes) yesVotes++;
-    else noVotes++;
-    numVotes++;
-   }
 
   // =====
   // MISC:

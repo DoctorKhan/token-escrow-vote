@@ -4,7 +4,7 @@ var events = require('./../app/javascripts/events');
 var EscrowFactory = artifacts.require('EscrowFactory.sol');
 var Escrow = artifacts.require('Escrow.sol');
 var MainToken = artifacts.require('MockMainToken.sol');
-var MiniMeTokenFactory = artifacts.require(' MockMiniMeTokenFactory.sol');
+var MiniMeTokenFactory = artifacts.require('MockMiniMeTokenFactory.sol');
 
 var chai = require('chai')
 const assert = require("chai").use(require("chai-as-promised")).assert;
