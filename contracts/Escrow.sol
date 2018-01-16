@@ -146,6 +146,7 @@ contract Escrow {
   }
 
   // Use these times for testing
-  function getBlockTime()   public constant returns (uint) { return block.timestamp; }
-  function getBlockNumber() public constant returns (uint) { return block.number;    }
+  
+  function getBlockTime()   internal constant returns  (uint) { return block.timestamp; }
+  function getBlockNumber() internal constant returns (uint) { return block.number;    }
 }

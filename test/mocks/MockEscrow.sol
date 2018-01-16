@@ -1,8 +1,16 @@
-pragma solidity ^0.4
+pragma solidity ^0.4.15;
 
-contract Escrow {
+import '../../contracts/Escrow.sol';
+
+contract MockEscrow is Escrow {
   uint256 public blockNumber__;
   uint256 public blockTime__;
+
+  
+  function MockEscrow (uint _numRounds, address _controller, address _token)
+    Escrow(_numRounds, _controller, _token)
+  {}
+
 
   function getBlockNumber() internal constant returns (uint256) {
     return blockNumber__;

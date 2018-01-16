@@ -1,8 +1,8 @@
 var events = require('./../app/javascripts/events');
 // var util = require('./../app/javascripts/util');
 
-var EscrowFactory = artifacts.require('EscrowFactory.sol');
-var Escrow = artifacts.require('Escrow.sol');
+var EscrowFactory = artifacts.require('MockEscrowFactory.sol');
+var Escrow = artifacts.require('MockEscrow.sol');
 var MainToken = artifacts.require('MockMainToken.sol');
 var MiniMeTokenFactory = artifacts.require('MockMiniMeTokenFactory.sol');
 
