@@ -21,37 +21,52 @@ contract('Escrow', function (accounts) {
   const oracleCBAddress = accounts[4];
 
   var escrow;
+  var controller = account1;
   var escrowFactory;
 
   describe('works with minime token', async () => {
     var minimetoken;
 
     beforeEach(async () => {
-      escrowfactory = await EscrowFactory.new({from: account1});
+      escrowFactory = await EscrowFactory.new({from: account1});
       const mmtf = await MiniMeTokenFactory.new({from: account1});
 
       var numRounds  = new BigNumber(3);
-      var controller = account1;
-      minimetoken = MainTokken.new(mmtf.address, {from: account1});
+      minimetoken = await MainToken.new(mmtf.address, {from: account1});
 
       //todo fix this
-      escrow = await escrowFactory.createEscrow(numRounds, controller, minimetoken.address, {from: account1});
-
+      var tx = await escrowFactory.createEscrow(numRounds, controller, minimetoken.address, {from: account1});
     });
 
     it('notifies us an escrow was created', async () => {
-      escrow = await escrowFactory.createEscrow(numRounds, account2, minimetoken.address, {from: account1});
-      var tx = undefined;
-      const x = events.EscrowCreation(tx);
+      var numRounds  = new BigNumber(3);
+      const tx = await escrowFactory.createEscrow(numRounds, account2, minimetoken.address, {from: account1});
+  
+      // print obj
 
-      const escrow = x[0];     // address
+      var pAll = function(obj, _p) {
+        if (obj != undefined && _p != undefined) 
+          console.log('obj ' + obj + ' - prop ' + _p + ' -thing ' + obj[_p]);
+        else           console.log('obj ' + obj);
+        for (var p in obj) pAll(obj[p], p)
+      }
+
+      pAll(tx, undefined);
+
+      //const event = events.EscrowCreation(tx);
+/*
+      console.log('info: ' + event);
+
+      const e = event[0];     // address
+      console.log('Addr: ' + e);
       assert.equal(escrow, '0x0');
 
-      const controller = x[1]; // address
+      const controller = event[1]; // address
       assert.equal(controller, account2);
 
-      const token = x[2];      // address
+      const token = event[2];      // address
       assert.equal(token, minimetoken.address);
+      */
     });
   });
 });

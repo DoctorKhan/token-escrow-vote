@@ -17,6 +17,7 @@ var VotingResult = function (result) {
 // event EscrowCreation(address indexed escrow, address indexed controller, address indexed token);
 var EscrowCreation = function (result) {
   ls = ['0x', '0x', '0x']
+  
   for (var i = 0; i < result.logs.length; i++) {
     var log = result.logs[i];
     if (log.event == 'escrow') 
