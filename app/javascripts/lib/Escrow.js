@@ -1,8 +1,20 @@
+const EscrowFactory;
+const Escrow;
+
 var escrow = undefined;
 
+class EscrowFac {
+
+}
+
+class EscrowCon {
+
+  constructor(address) {
+    this.address = address;
+  }
+  
 // ==============
 // User functions
-
 // run this during token sale
 var allocVotes = async() => {
   if (escrow == undefined)
@@ -60,7 +72,7 @@ var setRound = async(begin, end) => {
   // begin timestamp
 }
 
-
+}
 
 // exports.VotingResult = VotingResult;
 
