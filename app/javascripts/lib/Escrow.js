@@ -19,21 +19,30 @@ var allocVotes = async() => {
 // * what if oracle fails b/c gas too small? no refund?
 // * set account. default to account1? does metamask provide a hook to change it?
 var getRefund = async() => {
-  if (simulated) return '3.0023427';
-
-  var event = escrow.events.RefundAmount({filter: {user: account1}});
-
-  var refundAmount;
-  var listener = function(result) {
-    refundAmount = result.returnValues.refundAmount;
-  }
-
-  event.once('data', listener);
-  event.once('error', e => console.log(e));
-
-  const tx = await escrow.refund()
-        .send({from: account1})
-        .catch(e => console.log(e));
+    let promise = await new Promise((resolve, reject) => {
+      if (simulated) {
+        resolve('3.0023427');
+        return;
+      }
+  
+      var event = escrow.events.RefundAmount({filter: {user: account1}});
+      
+      var refundAmount;
+      var listener = function(result) {
+        resolve(result.returnValues.refundAmount.toNumber(10));
+      }
+      
+      event.once('data', listener);
+      event.once('error', e => console.log(e));
+      
+      const tx = await escrow.refund()
+            .send({from: account1})
+            .catch(e => console.log(e));
+      
+    })
+        .catch(err => {throw err});
+  
+  return promise;
 }
 
 // vote yes or no
