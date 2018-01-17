@@ -33,11 +33,11 @@ var getRefund = async() => {
       }
       
       event.once('data', listener);
-      event.once('error', e => console.log(e));
+      event.once('error', e => reject(e));
       
       const tx = await escrow.refund()
             .send({from: account1})
-            .catch(e => console.log(e));
+            .catch(e => reject(e));
       
     })
         .catch(err => {throw err});
