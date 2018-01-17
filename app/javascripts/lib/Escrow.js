@@ -13,34 +13,31 @@ var init = async(numRounds, controller, token) => {
     if (simulated) resolve();
 
     // use mock if testrpc
+    // check code safety here. dont want user to accidently deploy factory
     if (testrpc) {
       EscrowFactory = artifacts.require('MockEscrowFactory.sol');
       Escrow = artifacts.require('MockEscrow.sol');
+      escrowFactory = await EscrowFactory.new({from: account1});
     } else {
       EscrowFactory = artifacts.require('EscrowFactory.sol');
       Escrow = artifacts.require('Escrow.sol');
-    }
-
-    if (escrowFactory == undefined) {
-      if (testrpc) // check code safety here. dont want user to accidently deploy factory
-        escrowFactory = await EscrowFactory.new({from: account1});
-      else 
-        escrowFactory = await EscrowFactory.deployed();
+      escrowFactory = await EscrowFactory.deployed();
     }
 
     var event = escrowFactory.events.EscrowCreation({filter: {controller: account1}});
-      
+
     var listener = async(result) => {
       escrow = await Escrow.at(result.escrow);
       resolve();
     }
-      
+
     event.once('data', listener);
     event.once('error', e => reject(e));
-      
+
     const tx = await escrowFactory.createEscrow(numRounds, controller, token)
             .send({from: account1})
             .catch(e => reject(e));
+  });
 
   return promise;
 }
@@ -83,6 +80,7 @@ var getRefund = async() => {
     const tx = await escrow.refund()
           .send({from: account1})
           .catch(e => reject(e));
+  });
     
   return promise;
 }
