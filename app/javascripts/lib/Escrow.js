@@ -110,9 +110,7 @@ var singleVote = async(yes) => {
 // =================
 // Company functions
 // =================
-
-<<<<<<< HEAD
-var setRound = async(begin, end) => {
+  var setRound = async(begin, end) => {
   // begin timestamp
 }
   const tx = await escrow.setRoundWindow(roundNum, start, end).send({from: account1})
