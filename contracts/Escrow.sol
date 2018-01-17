@@ -57,7 +57,7 @@ contract Escrow {
 
   // consider privledges
   function startVoteRound() public {
-    require(now >= startTime[roundNum + 1] && now <= endTime[roundNum + 1]); // make sure in voting window
+    require(getBlockTime() >= startTime[roundNum + 1] && getBlockTime() <= endTime[roundNum + 1]); // make sure in voting window
     roundNum = roundNum + 1;
   }
 
@@ -70,7 +70,7 @@ contract Escrow {
   function singleVote(bool votedYes) public {
     // Error check
     require(hasVoted[roundNum][msg.sender] == false);
-    require(now >= startTime[roundNum] && now <= endTime[roundNum]); // make sure in voting window
+    require(getBlockTime() >= startTime[roundNum] && getBlockTime() <= endTime[roundNum]); // make sure in voting window
 
     // State changes
     if (votedYes) {
@@ -124,6 +124,15 @@ contract Escrow {
     // require so it doesn't eat gas
   }
 
+  function setRoundWindow(uint roundNum, uint start, uint end) public isController {
+    require(begin < end);
+
+    startTime[roundNum] = start;
+    endTime[roundNum]   = end;
+  }
+
+  // todo. make fallback fail
+
   // =====
   // USER:
   // =====  
@@ -171,5 +180,4 @@ contract Escrow {
   // Use these times for testing
   
   function getBlockTime()   internal constant returns  (uint) { return block.timestamp; }
-  function getBlockNumber() internal constant returns (uint) { return block.number;    }
 }
