@@ -13,6 +13,12 @@ contract Escrow {
   uint public roundNum;
   uint public numRounds;
   address public company;
+  uint public baseExchange;
+
+  struct Fraction {
+    uint num;
+    uint denom;
+  }
 
   // threshold approval
   uint public threshNum;
@@ -85,6 +91,9 @@ contract Escrow {
   // ========
   // COMPANY:
   // ========
+  
+  //
+  // function () isController {  }
 
   // open voting round
   function openVote(uint round) public {
@@ -120,16 +129,30 @@ contract Escrow {
   // =====  
   // note. consider where tokens go. if tokens go to company, then they can cheat system. if tokens go to this contract, then they are stuck here unless we send them back to company
 
+  function getExchangeRate() returns (uint){
+    // minimi previous balance, oracle token discount, etc
+    // minime balanceOfAt(msg.sender,  _blockNumber)
+    // baseExchange hardcoded
+    // tokeRatio should be between 0 and 2
+    uint tokenRatio = 1;
+    
+    return baseExchange * tokenRatio;
+  }
+
+  event RefundAmount(address indexed user, uint refundAmount);
+
   // Require approval of entire balanceOf?
   function refund() public {
     // add this    require(inRefundState);
-
+    
     // Get tokens, then refund remaining ether
+    
     uint tokenCount = tokenContract.balanceOf(msg.sender);
-    uint refundAmount = 1;
+    uint refundAmount = tokenCount * getExchangeRate();
     // uint refundAmount = tokenCount * currentExchangeRate;  // Num and denom style is probably better. Probably need be careful in what gets divided and multiplied first.. e.g. (1/4)*8 vs (1*8)/4
     require(tokenContract.transferFrom(msg.sender, this, tokenCount));  // make sure params are right
     msg.sender.send(refundAmount);
+    RefundAmount(msg.sender, refundAmount);
   }
 
   // =====
