@@ -5,11 +5,11 @@ var escrow = undefined;
 
 // run this during token sale
 var allocVotes = async() => {
-  if (escrow == undefined)
-    throw('Escrow undefined');
+  if (escrow == undefined) throw('Escrow undefined');
+
   const tx = await escrow.allocVotes(); 
 
-  txFailed = true; // TODO: check if transaction failed
+  txFailed = false; // todo check if transaction failed
   if(txFailed) 
     throw('Escrow undefined');
 }
@@ -20,10 +20,8 @@ var allocVotes = async() => {
 // * set account. default to account1? does metamask provide a hook to change it?
 var getRefund = async() => {
     let promise = await new Promise((resolve, reject) => {
-      if (simulated) {
-        resolve('3.0023427');
-        return;
-      }
+      if (escrow == undefined) reject('Escrow undefined');
+      if (simulated) resolve('3.0023427');
   
       var event = escrow.events.RefundAmount({filter: {user: account1}});
       
@@ -46,7 +44,8 @@ var getRefund = async() => {
 }
 
 // vote yes or no
-exports.singleVote = async(yes) => {
+var singleVote = async(yes) => {
+  if (escrow == undefined) throw('Escrow undefined');
   if (simulated) return;
 
   const tx = await escrow.singleVote(yes);
@@ -55,24 +54,24 @@ exports.singleVote = async(yes) => {
 
 // =================
 // Company functions
+// =================
 
-var setRound = async(begin, end) => {
-  // begin timestamp
+// todo what are param types? string? num? bigNum?
+var setRoundWindow = async(roundNum, start, end) => {
+  if (escrow == undefined) throw('Escrow undefined');
+  if (simulated) return;
+
+  cosnt tx = await escrow.setRoundWindow(roundNum, start, end).send({from: account1})
 }
 
+// ===
+// API
+// ===
 
+// User
+exports.getRefund = getRefund;
+exports allocVotes = allocVotes;
 
-// exports.VotingResult = VotingResult;
-
-
-/*
-
-var vote = async() => {
-  const votesPassed = new BigNumber(5);
-
-  if (simulated) return votesPassed;
-
-  votesPassed = EscrowContract.votes();
-  return votesPassed;
-}
-*/
+// Company
+exports.singleVote = singleVote;
+exports.setRoundWindow = setRoundWindow;
