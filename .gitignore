@@ -14,6 +14,6 @@ audit/test/testchain/history*
 keys.js
 package-lock.json
 
+# One of these works on emacs files
 *~
-.\#*
-\#*\#
+*[#]*
