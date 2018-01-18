@@ -1,7 +1,7 @@
 // var events = require('./../app/javascripts/events');
 // var util = require('./../app/javascripts/util');
 
-import {EscrowCon} from '../app/javascripts/lib/Escrow';
+var EscrowCon = require('../app/javascripts/lib/Escrow');
 
 var EscrowFactory = artifacts.require('MockEscrowFactory.sol');
 var Escrow = artifacts.require('MockEscrow.sol');
