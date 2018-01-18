@@ -1,5 +1,7 @@
-var events = require('./../app/javascripts/events');
+// var events = require('./../app/javascripts/events');
 // var util = require('./../app/javascripts/util');
+
+import {EscrowCon} from '../app/javascripts/lib/Escrow';
 
 var EscrowFactory = artifacts.require('MockEscrowFactory.sol');
 var Escrow = artifacts.require('MockEscrow.sol');
@@ -28,6 +30,7 @@ contract('Escrow', function (accounts) {
     var minimetoken;
 
     beforeEach(async () => {
+/* no interface
       escrowFactory = await EscrowFactory.new({from: account1});
       const mmtf = await MiniMeTokenFactory.new({from: account1});
 
@@ -36,6 +39,10 @@ contract('Escrow', function (accounts) {
 
       //todo fix this
       var tx = await escrowFactory.createEscrow(numRounds, controller, minimetoken.address, {from: account1});
+*/
+      const mmtf = await MiniMeTokenFactory.new({from: account1});
+      minimetoken = await MainToken.new(mmtf.address, {from: account1});
+      EscrowCon(new BigNumber(3), account2, minimetoken.address);
     });
 /*
     it('notifies us an escrow was created', async (done) => {

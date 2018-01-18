@@ -124,8 +124,9 @@ contract Escrow {
     // require so it doesn't eat gas
   }
 
-  function setRoundWindow(uint roundNum, uint start, uint end) public isController {
-    require(begin < end);
+  // isController ?
+  function setRoundWindow(uint roundNum, uint start, uint end) public  {
+    require(start < end);
 
     startTime[roundNum] = start;
     endTime[roundNum]   = end;

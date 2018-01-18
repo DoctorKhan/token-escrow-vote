@@ -1,5 +1,5 @@
-const EscrowFactory;
-const Escrow;
+var EscrowFactory;
+var Escrow;
 
 var escrow = undefined;
 var escrowFactory = undefined;
@@ -11,39 +11,6 @@ var Escrow;
 // Init function
 // =============
 
-var init = async(numRounds, controller, token) => {
-  let promise = await new Promise((resolve, reject) => {
-    if (simulated) resolve();
-
-    // use mock if testrpc
-    // check code safety here. dont want user to accidently deploy factory
-    if (testrpc) {
-      EscrowFactory = artifacts.require('MockEscrowFactory.sol');
-      Escrow = artifacts.require('MockEscrow.sol');
-      escrowFactory = await EscrowFactory.new({from: account1});
-    } else {
-      EscrowFactory = artifacts.require('EscrowFactory.sol');
-      Escrow = artifacts.require('Escrow.sol');
-      escrowFactory = await EscrowFactory.deployed();
-    }
-
-    var event = escrowFactory.events.EscrowCreation({filter: {controller: account1}});
-
-    var listener = async(result) => {
-      escrow = await Escrow.at(result.escrow);
-      resolve();
-    }
-
-    event.once('data', listener);
-    event.once('error', e => reject(e));
-
-    const tx = await escrowFactory.createEscrow(numRounds, controller, token)
-            .send({from: account1})
-            .catch(e => reject(e));
-  });
-
-  return promise;
-}
 
 class EscrowFac {
 
@@ -51,10 +18,41 @@ class EscrowFac {
 
 class EscrowCon {
 
-  constructor(address) {
-    this.address = address;
+  constructor = async(numRounds, controller, token) {
+    let promise = await new Promise((resolve, reject) => {
+      if (simulated) resolve();
+      
+      // use mock if testrpc
+      // check code safety here. dont want user to accidently deploy factory
+      if (testrpc) {
+        EscrowFactory = artifacts.require('MockEscrowFactory.sol');
+        Escrow = artifacts.require('MockEscrow.sol');
+        escrowFactory = await EscrowFactory.new({from: account1});
+      } else {
+        EscrowFactory = artifacts.require('EscrowFactory.sol');
+        Escrow = artifacts.require('Escrow.sol');
+        escrowFactory = await EscrowFactory.deployed();
+      }
+      
+      var event = escrowFactory.events.EscrowCreation({filter: {controller: account1}});
+      
+      var listener = async(result) => {
+        escrow = await Escrow.at(result.escrow);
+        resolve();
+      }
+      
+      event.once('data', listener);
+      event.once('error', e => reject(e));
+      
+      const tx = await escrowFactory.createEscrow(numRounds, controller, token)
+            .send({from: account1})
+            .catch(e => reject(e));
+    });
+    
+    return promise;
   }
-  
+}
+/*
 // ==============
 // User functions
 // ==============
@@ -130,3 +128,8 @@ exports allocVotes = allocVotes;
 // Company
 exports.singleVote = singleVote;
 exports.setRoundWindow = setRoundWindow;
+
+
+// */
+
+module.export.EscrowCon;
