@@ -1,25 +1,21 @@
-var EscrowFactory;
-var Escrow;
+var EscrowFactory = undefined;
+var Escrow = undefined;
 
 var escrow = undefined;
 var escrowFactory = undefined;
 
-var EscrowFactory;
-var Escrow;
+var EscrowFactory = undefined;
+var Escrow = undefined;
 
 // =============
 // Init function
 // =============
 
 
-class EscrowFac {
-
-}
-
-class EscrowCon {
-
-  constructor = async(numRounds, controller, token) {
-    let promise = await new Promise((resolve, reject) => {
+var constructor = async (numRounds, controller, token) => {
+  
+/*
+    let promise = new Promise(async (resolve, reject) => {
       if (simulated) resolve();
       
       // use mock if testrpc
@@ -27,11 +23,11 @@ class EscrowCon {
       if (testrpc) {
         EscrowFactory = artifacts.require('MockEscrowFactory.sol');
         Escrow = artifacts.require('MockEscrow.sol');
-        escrowFactory = await EscrowFactory.new({from: account1});
+        escrowFactory = EscrowFactory.new({from: account1});
       } else {
         EscrowFactory = artifacts.require('EscrowFactory.sol');
         Escrow = artifacts.require('Escrow.sol');
-        escrowFactory = await EscrowFactory.deployed();
+        escrowFactory = EscrowFactory.deployed();
       }
       
       var event = escrowFactory.events.EscrowCreation({filter: {controller: account1}});
@@ -50,8 +46,8 @@ class EscrowCon {
     });
     
     return promise;
+    */
   }
-}
 /*
 // ==============
 // User functions
@@ -132,4 +128,4 @@ exports.setRoundWindow = setRoundWindow;
 
 // */
 
-module.export.EscrowCon;
+//module.export.EscrowCon;
