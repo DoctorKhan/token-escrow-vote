@@ -12,9 +12,47 @@ var Escrow = undefined;
 // =============
 
 
+simulated = true;
+failPercentage = 0.1;
+function getDeployedEscrow() {
+  return testrpc ? MockEscrow.Deployed()
+                 : Escrow.Deployed();
+}
+
+// 
+// return escrow id, 24 bytes
+function createEscrow(numRounds, token, arbitor, company, payoutAddr, minVotes) {
+  if (simulated) {
+    if (Math.random() < failPercentage) throw('Escrow not created!');
+    if (Math.random() < failPercentage) throw('Tx failed!');
+    return '0xae67984724872020842709842faee8a89a99Ae5d';
+
+  }
+  console.log('Created escrow: ' 
+              + numRounds + ' ' + token + ' ' + arbitor + ' ' + company + ' ' + payoutAddr);    
+  escrow = await getDeployedEscrow();
+  escrow.createEscrow(numRounds, token, arbitor, company, payoutAddr);
+}
+
+//user
+function allocVotes(id) {
+  if (simulated && Math.random() < failPercentage) throw('Tx failed!');
+  // consider explaining failure. e.g. bad id, user has no tokens, etc
+}
+function userRefund(id) {
+    if (simulated && Math.random() < failPercentage) throw('Tx failed!');
+}
+function singleVote(voteYesTrue) {
+    if (simulated && Math.random() < failPercentage) throw('Tx failed!');
+}
+
+
+// maybe add
+function getEscrowInfo();
+/*
+
 var constructor = async (numRounds, controller, token) => {
   
-/*
     let promise = new Promise(async (resolve, reject) => {
       if (simulated) resolve();
       

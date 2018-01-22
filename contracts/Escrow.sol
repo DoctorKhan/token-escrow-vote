@@ -72,7 +72,7 @@ contract Escrow {
   // COMPANY:
   // ========
 
-  function createEscrow(uint numRounds, address arbitrator, address token, address payoutAddress) {
+  function createEscrow(uint numRounds, address arbitrator, address token, address payoutAddress, uint minVotes) {
     address company = msg.sender;
     bytes24 id = 0; // sha3(company, arbitrator, token, payoutAddress);
 
@@ -81,6 +81,7 @@ contract Escrow {
     escrows[id].tokenContract = ERC20(token);
     escrows[id].payoutAddress = payoutAddress;
     escrows[id].numRounds = numRounds;
+    escrows[id].minVotes = minVotes;
 
     EscrowCreation(company, id);
   }
